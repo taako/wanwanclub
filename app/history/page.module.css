@@ -1,0 +1,122 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-lg);
+  margin-bottom: 2rem;
+}
+
+.cardContainer {
+  padding: 2.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  background: rgba(255,255,255,0.6);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.historyTable th {
+  background: rgba(0,0,0,0.05);
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.historyTable td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  vertical-align: middle;
+}
+
+.historyTable tr:last-child td {
+  border-bottom: none;
+}
+
+.historyTable tr {
+  transition: var(--transition);
+}
+
+.historyTable tr:hover {
+  background: rgba(255,255,255,0.8);
+}
+
+.dogInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dogAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: linear-gradient(135deg, var(--secondary), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.badgeActive {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.badgeCompleted {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.timelineCell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+}
