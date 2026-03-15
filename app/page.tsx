@@ -106,7 +106,6 @@ export default function Home() {
         </Link>
         <div className="nav-links">
           <Link href="/" className="nav-link active">ダッシュボード</Link>
-          <Link href="/members" className="nav-link">会員登録</Link>
           <Link href="/history" className="nav-link">利用履歴</Link>
         </div>
       </nav>
@@ -198,17 +197,27 @@ export default function Home() {
               >
                 <LogIn size={18} /> 入室する
               </button>
-              <button 
-                className="btn btn-outline" 
-                onClick={() => handleAction("exit")}
-                disabled={actionLoading || !memberId.trim()}
-              >
-                <LogOut size={18} /> 退室する
-              </button>
+                <button 
+                  className="btn btn-outline" 
+                  onClick={() => handleAction("exit")}
+                  disabled={actionLoading || !memberId.trim()}
+                >
+                  <LogOut size={18} /> 退室する
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
-  );
-}
+        </main>
+
+        <footer style={{ textAlign: "center", padding: "2rem", marginTop: "2rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
+          <p>&copy; {new Date().getFullYear()} DogRun Connect. All rights reserved.</p>
+          <div style={{ marginTop: "1rem" }}>
+              <Link href="/admin" style={{ color: "var(--text-secondary)", textDecoration: "none", opacity: 0.5 }}>
+                  スタッフ専用(管理画面)
+              </Link>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+

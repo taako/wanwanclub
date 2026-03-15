@@ -101,3 +101,75 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PUT(request: Request) {
+  try {
+    const formData = await request.formData();
+    const id = formData.get("id") as string;
+    const dogName = formData.get("dogName") as string;
+    const photo = formData.get("photo") as File | null;
+
+    if (!id || !dogName) {
+      return NextResponse.json(
+        { success: false, error: "id and dogName are required" },
+        { status: 400 }
+      );
+    }
+
+    const doc = await getGoogleSheet();
+    let sheet = doc.sheetsByTitle["Members"];
+    if (!sheet) {
+        return NextResponse.json({ success: false, error: "Members sheet not found" }, { status: 500 });
+    }
+
+    // Find the existing member
+    const rows = await sheet.getRows();
+    const memberRow = rows.find(row => row.get("id") === id);
+
+    if (!memberRow) {
+      return NextResponse.json(
+        { success: false, error: "Member not found" },
+        { status: 404 }
+      );
+    }
+
+    let photoUrl = memberRow.get("photoUrl");
+
+    // Only update photo if a new one is uploaded
+    if (photo && photo.size > 0 && photo.name !== "undefined") {
+      const bytes = await photo.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      
+      const fileExt = photo.name.split('.').pop() || 'jpg';
+      const fileName = `${uuidv4()}.${fileExt}`;
+      const uploadDir = join(process.cwd(), 'public/uploads');
+      const filePath = join(uploadDir, fileName);
+      
+      await writeFile(filePath, buffer);
+      photoUrl = `/uploads/${fileName}`;
+    }
+
+    // Update row data
+    memberRow.set("dogName", dogName);
+    if (photoUrl) {
+        memberRow.set("photoUrl", photoUrl);
+    }
+    
+    await memberRow.save();
+
+    const updatedMember = {
+      id,
+      dogName,
+      photoUrl: photoUrl || "",
+      createdAt: memberRow.get("createdAt"),
+    };
+
+    return NextResponse.json({ success: true, member: updatedMember });
+  } catch (error: any) {
+    console.error("Failed to update member:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to update member: " + error.message },
+      { status: 500 }
+    );
+  }
+}
+

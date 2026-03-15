@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Dog, PlusCircle, Users, IdCard } from "lucide-react";
+import { Dog, PlusCircle, Users, IdCard, Edit2, XCircle, Save } from "lucide-react";
 import styles from "./page.module.css";
 
 type Member = {
@@ -20,6 +20,7 @@ export default function Members() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const fetchMembers = async () => {
     try {
@@ -50,6 +51,29 @@ export default function Members() {
     }
   };
 
+  const handleEdit = (member: Member) => {
+    setIsEditMode(true);
+    setMemberId(member.id);
+    setDogName(member.dogName);
+    setPhotoPreview(member.photoUrl || null);
+    setPhotoFile(null); // Clear selected file logic, existing photo shows in preview
+    setMessage(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setMemberId("");
+    setDogName("");
+    setPhotoPreview(null);
+    setPhotoFile(null);
+    setMessage(null);
+    
+    // reset file input visually
+    const fileInput = document.getElementById("photo") as HTMLInputElement;
+    if (fileInput) fileInput.value = "";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!memberId.trim() || !dogName.trim()) {
@@ -69,17 +93,20 @@ export default function Members() {
       }
 
       const res = await fetch("/api/members", {
-        method: "POST",
+        method: isEditMode ? "PUT" : "POST",
         body: formData,
       });
       const data = await res.json();
 
       if (data.success) {
-        setMessage({ type: "success", text: "会員を登録しました！" });
-        setMemberId("");
+        setMessage({ type: "success", text: isEditMode ? "会員情報を更新しました！" : "会員を登録しました！" });
+        if (!isEditMode) {
+            setMemberId("");
+        }
         setDogName("");
         setPhotoFile(null);
         setPhotoPreview(null);
+        setIsEditMode(false);
         fetchMembers();
       } else {
         setMessage({ type: "error", text: data.error || "登録に失敗しました" });
@@ -101,20 +128,21 @@ export default function Members() {
         </Link>
         <div className="nav-links">
           <Link href="/" className="nav-link">ダッシュボード</Link>
-          <Link href="/members" className="nav-link active">会員登録</Link>
           <Link href="/history" className="nav-link">利用履歴</Link>
+          <Link href="/admin" className="nav-link active">管理画面</Link>
         </div>
       </nav>
 
       <main className={styles.main}>
         <div className={styles.hero}>
-          <h1 className="page-title">新規会員登録</h1>
-          <p className="page-subtitle">新しいワンちゃんと飼い主様をシステムに登録します</p>
+          <h1 className="page-title">{isEditMode ? "会員情報の編集" : "新規会員登録"}</h1>
+          <p className="page-subtitle">{isEditMode ? "登録済みのワンちゃんの情報を更新します" : "新しいワンちゃんと飼い主様をシステムに登録します"}</p>
         </div>
 
         <div className={`glass-panel ${styles.formContainer}`}>
           <div className={styles.sectionTitle}>
-            <PlusCircle className="brandHighlight" /> 登録フォーム
+            {isEditMode ? <Edit2 className="brandHighlight" /> : <PlusCircle className="brandHighlight" />} 
+            {isEditMode ? " 編集フォーム" : " 登録フォーム"}
           </div>
           
           {message && (
@@ -136,9 +164,10 @@ export default function Members() {
                 placeholder="好きな英数字（例: M001）"
                 value={memberId}
                 onChange={(e) => setMemberId(e.target.value)}
-                disabled={loading}
+                disabled={loading || isEditMode}
               />
-              <p className={styles.helperText}>※他の方とかぶらないIDを設定してください</p>
+              {!isEditMode && <p className={styles.helperText}>※他の方とかぶらないIDを設定してください</p>}
+              {isEditMode && <p className={styles.helperText}>※会員IDは変更できません</p>}
             </div>
 
             <div className="input-group">
@@ -178,8 +207,13 @@ export default function Members() {
 
             <div className={styles.formActions}>
               <button type="submit" className="btn btn-primary" disabled={loading || !memberId.trim() || !dogName.trim()}>
-                <PlusCircle size={20} /> 登録する
+                {isEditMode ? <><Save size={20} /> 更新する</> : <><PlusCircle size={20} /> 登録する</>}
               </button>
+              {isEditMode && (
+                  <button type="button" className="btn btn-outline" onClick={handleCancelEdit} disabled={loading}>
+                      <XCircle size={20} /> キャンセル
+                  </button>
+              )}
             </div>
           </form>
         </div>
@@ -206,7 +240,16 @@ export default function Members() {
                     )}
                     <span style={{fontWeight: 600}}>{member.dogName}</span>
                   </div>
-                  <div className={styles.memberId}>ID: {member.id}</div>
+                  <div className={styles.memberActionsWrap}>
+                    <div className={styles.memberId}>ID: {member.id}</div>
+                    <button 
+                      className={`btn btn-outline ${styles.editButton}`} 
+                      onClick={() => handleEdit(member)}
+                      title="この会員を編集"
+                    >
+                      <Edit2 size={14} /> 編集
+                    </button>
+                  </div>
                 </div>
               ))
             )}
