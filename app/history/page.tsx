@@ -97,11 +97,17 @@ export default function History() {
                   {history.map((session) => (
                     <tr key={session.id}>
                       <td>
-                        {session.exitedAt ? (
-                          <span className={`${styles.badge} ${styles.badgeCompleted}`}>退室済</span>
-                        ) : (
-                          <span className={`${styles.badge} ${styles.badgeActive}`}>利用中</span>
-                        )}
+                        {(() => {
+                          const isExited = session.exitedAt !== null;
+                          const enteredAt = new Date(session.enteredAt).getTime();
+                          const now = Date.now();
+                          const isAutoExited = (now - enteredAt) > 30 * 60 * 1000;
+                          
+                          if (isExited || isAutoExited) {
+                            return <span className={`${styles.badge} ${styles.badgeCompleted}`}>退室済</span>;
+                          }
+                          return <span className={`${styles.badge} ${styles.badgeActive}`}>利用中</span>;
+                        })()}
                       </td>
                       <td>
                         <div className={styles.dogInfo}>

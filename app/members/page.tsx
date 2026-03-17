@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Dog, PlusCircle, Users, IdCard, Pencil, X, Save, Search } from "lucide-react";
 import styles from "./page.module.css";
@@ -22,6 +22,7 @@ export default function Members() {
   const [members, setMembers] = useState<Member[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const dogNameInputRef = useRef<HTMLInputElement>(null);
 
   const fetchMembers = async () => {
     try {
@@ -48,6 +49,10 @@ export default function Members() {
     setMessage(null);
     // Scroll to form
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Focus dog name input
+    setTimeout(() => {
+      dogNameInputRef.current?.focus();
+    }, 100);
   };
 
   const cancelEdit = () => {
@@ -233,15 +238,16 @@ export default function Members() {
                 <Dog size={16} style={{display: "inline", marginRight: "4px", verticalAlign: "middle"}}/>
                 ワンちゃんの名前
               </label>
-              <input
-                id="dogName"
-                type="text"
-                className="input-field"
-                placeholder="例: ぽち"
-                value={dogName}
-                onChange={(e) => setDogName(e.target.value)}
-                disabled={loading}
-              />
+                <input
+                  id="dogName"
+                  ref={dogNameInputRef}
+                  type="text"
+                  className="input-field"
+                  placeholder="例: ぽち"
+                  value={dogName}
+                  onChange={(e) => setDogName(e.target.value)}
+                  disabled={loading}
+                />
             </div>
 
             <div className="input-group">
