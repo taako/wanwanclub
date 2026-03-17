@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  // Only protect the /admin route and its sub-routes
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  // Only protect the /members route and its sub-routes
+  if (request.nextUrl.pathname.startsWith('/members')) {
     const basicAuth = request.headers.get('authorization')
     
     // We expect the user to provide ADMIN_USER and ADMIN_PASSWORD in their environment variables.
@@ -27,5 +27,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: '/admin/:path*',
+  matcher: '/members/:path*',
 }
