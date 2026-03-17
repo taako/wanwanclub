@@ -101,3 +101,68 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const formData = await request.formData();
+    const id = formData.get("id") as string;
+    const dogName = formData.get("dogName") as string;
+    const photo = formData.get("photo") as File | null;
+
+    if (!id || !dogName) {
+      return NextResponse.json(
+        { success: false, error: "id and dogName are required" },
+        { status: 400 }
+      );
+    }
+
+    const doc = await getGoogleSheet();
+    const sheet = doc.sheetsByTitle["Members"];
+    if (!sheet) throw new Error("Sheet 'Members' not found");
+
+    const rows = await sheet.getRows();
+    const row = rows.find(r => r.get("id") === id);
+
+    if (!row) {
+      return NextResponse.json(
+        { success: false, error: "Member not found" },
+        { status: 404 }
+      );
+    }
+
+    let photoUrl = row.get("photoUrl");
+
+    if (photo && photo.size > 0 && typeof photo !== 'string') {
+      const bytes = await photo.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      
+      const fileExt = photo.name.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+      const uploadDir = join(process.cwd(), 'public/uploads');
+      const filePath = join(uploadDir, fileName);
+      
+      await writeFile(filePath, buffer);
+      photoUrl = `/uploads/${fileName}`;
+    }
+
+    row.set("dogName", dogName);
+    row.set("photoUrl", photoUrl || "");
+    await row.save();
+
+    return NextResponse.json({ 
+      success: true, 
+      member: {
+        id,
+        dogName,
+        photoUrl,
+        createdAt: row.get("createdAt")
+      } 
+    });
+  } catch (error: any) {
+    console.error("Failed to update member:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to update member: " + error.message },
+      { status: 500 }
+    );
+  }
+}
+

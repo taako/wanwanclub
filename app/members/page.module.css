@@ -33,7 +33,24 @@
 .formActions {
   margin-top: 2rem;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.editActions {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.cancelBtn {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.cancelBtn:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .formActions button {
@@ -55,6 +72,39 @@
   flex-direction: column;
   gap: 1rem;
 }
+
+.searchContainer {
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.8rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 1rem;
+  transition: var(--transition);
+  color: var(--text-primary);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+}
+
 
 .memberItem {
   display: flex;
@@ -78,6 +128,29 @@
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.875rem;
+}
+
+.memberActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.editBtn {
+  padding: 0.4rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+}
+
+.editBtn:hover {
+  color: var(--primary);
+  background: rgba(var(--primary-rgb), 0.1);
 }
 
 .fileInput {

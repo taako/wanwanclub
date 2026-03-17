@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Dog, PlusCircle, Users, IdCard } from "lucide-react";
+import { Dog, PlusCircle, Users, IdCard, Pencil, X, Save, Search } from "lucide-react";
 import styles from "./page.module.css";
 
 type Member = {
@@ -20,6 +20,8 @@ export default function Members() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchMembers = async () => {
     try {
@@ -36,6 +38,26 @@ export default function Members() {
   useEffect(() => {
     fetchMembers();
   }, []);
+
+  const handleEdit = (member: Member) => {
+    setIsEditing(true);
+    setMemberId(member.id);
+    setDogName(member.dogName);
+    setPhotoPreview(member.photoUrl || null);
+    setPhotoFile(null);
+    setMessage(null);
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setMemberId("");
+    setDogName("");
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    setMessage(null);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,20 +91,26 @@ export default function Members() {
       }
 
       const res = await fetch("/api/members", {
-        method: "POST",
+        method: isEditing ? "PATCH" : "POST",
         body: formData,
       });
       const data = await res.json();
 
       if (data.success) {
-        setMessage({ type: "success", text: "会員を登録しました！" });
+        setMessage({ type: "success", text: isEditing ? "会員情報を更新しました！" : "会員を登録しました！" });
+        if (!isEditing) {
+          setMemberId("");
+          setDogName("");
+          setPhotoPreview(null);
+        }
+        setPhotoFile(null);
+        setIsEditing(false);
         setMemberId("");
         setDogName("");
-        setPhotoFile(null);
         setPhotoPreview(null);
         fetchMembers();
       } else {
-        setMessage({ type: "error", text: data.error || "登録に失敗しました" });
+        setMessage({ type: "error", text: data.error || "操作に失敗しました" });
       }
     } catch (error) {
       setMessage({ type: "error", text: "通信エラーが発生しました" });
@@ -91,6 +119,11 @@ export default function Members() {
       setTimeout(() => setMessage(null), 3000);
     }
   };
+
+  const filteredMembers = members.filter(member => 
+    member.dogName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    member.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="app-container">
@@ -101,20 +134,74 @@ export default function Members() {
         </Link>
         <div className="nav-links">
           <Link href="/" className="nav-link">ダッシュボード</Link>
-          <Link href="/members" className="nav-link active">会員登録</Link>
+          <Link href="/members" className="nav-link active">会員管理</Link>
           <Link href="/history" className="nav-link">利用履歴</Link>
         </div>
       </nav>
 
       <main className={styles.main}>
         <div className={styles.hero}>
-          <h1 className="page-title">新規会員登録</h1>
-          <p className="page-subtitle">新しいワンちゃんと飼い主様をシステムに登録します</p>
+          <h1 className="page-title">{isEditing ? "会員情報の編集" : "新規会員登録"}</h1>
+          <p className="page-subtitle">
+            {isEditing ? `ID: ${memberId} の情報を編集します` : "新しいワンちゃんと飼い主様をシステムに登録します"}
+          </p>
+        </div>
+
+        {/* List of registered members */}
+        <div className={styles.membersListContainer}>
+          <div className={styles.sectionTitle}>
+            <Users className="brandHighlight" /> 登録済み会員一覧
+          </div>
+
+          <div className={styles.searchContainer}>
+            <Search className={styles.searchIcon} size={20} />
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="名前またはIDで検索..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <div className={styles.membersList}>
+            {filteredMembers.length === 0 ? (
+              <div style={{textAlign: "center", color: "var(--text-secondary)", padding: "2rem"}}>
+                {searchQuery ? "一致する会員が見つかりませんでした" : "まだ会員が登録されていません"}
+              </div>
+            ) : (
+              filteredMembers.map((member) => (
+                <div key={member.id} className={styles.memberItem}>
+                  <div className={styles.memberInfo}>
+                    {member.photoUrl ? (
+                      <img src={member.photoUrl} alt={member.dogName} className={styles.memberListPhoto} />
+                    ) : (
+                      <Dog className="brandHighlight" size={20} />
+                    )}
+                    <div style={{display: "flex", flexDirection: "column"}}>
+                      <span style={{fontWeight: 600}}>{member.dogName}</span>
+                      <span className={styles.memberId}>ID: {member.id}</span>
+                    </div>
+                  </div>
+                  <div className={styles.memberActions}>
+                    <button 
+                      className={styles.editBtn} 
+                      onClick={() => handleEdit(member)}
+                      title="編集"
+                    >
+                      <Pencil size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         <div className={`glass-panel ${styles.formContainer}`}>
           <div className={styles.sectionTitle}>
-            <PlusCircle className="brandHighlight" /> 登録フォーム
+            {isEditing ? <Pencil className="brandHighlight" /> : <PlusCircle className="brandHighlight" />} 
+            {isEditing ? " 編集フォーム" : " 登録フォーム"}
           </div>
           
           {message && (
@@ -136,9 +223,9 @@ export default function Members() {
                 placeholder="好きな英数字（例: M001）"
                 value={memberId}
                 onChange={(e) => setMemberId(e.target.value)}
-                disabled={loading}
+                disabled={loading || isEditing}
               />
-              <p className={styles.helperText}>※他の方とかぶらないIDを設定してください</p>
+              {!isEditing && <p className={styles.helperText}>※他の方とかぶらないIDを設定してください</p>}
             </div>
 
             <div className="input-group">
@@ -177,40 +264,22 @@ export default function Members() {
             </div>
 
             <div className={styles.formActions}>
-              <button type="submit" className="btn btn-primary" disabled={loading || !memberId.trim() || !dogName.trim()}>
-                <PlusCircle size={20} /> 登録する
-              </button>
+              {isEditing ? (
+                <div className={styles.editActions}>
+                  <button type="button" onClick={cancelEdit} className="btn btn-secondary cancelBtn" disabled={loading}>
+                    <X size={20} /> キャンセル
+                  </button>
+                  <button type="submit" className="btn btn-primary" disabled={loading || !dogName.trim()}>
+                    <Save size={20} /> 更新する
+                  </button>
+                </div>
+              ) : (
+                <button type="submit" className="btn btn-primary" disabled={loading || !memberId.trim() || !dogName.trim()}>
+                  <PlusCircle size={20} /> 登録する
+                </button>
+              )}
             </div>
           </form>
-        </div>
-
-        {/* List of registered members for demo purposes */}
-        <div className={styles.membersListContainer}>
-          <div className={styles.sectionTitle}>
-            <Users className="brandHighlight" /> 登録済み会員一覧
-          </div>
-          
-          <div className={styles.membersList}>
-            {members.length === 0 ? (
-              <div style={{textAlign: "center", color: "var(--text-secondary)", padding: "2rem"}}>
-                まだ会員が登録されていません
-              </div>
-            ) : (
-              members.map((member) => (
-                <div key={member.id} className={styles.memberItem}>
-                  <div className={styles.memberInfo}>
-                    {member.photoUrl ? (
-                      <img src={member.photoUrl} alt={member.dogName} className={styles.memberListPhoto} />
-                    ) : (
-                      <Dog className="brandHighlight" size={20} />
-                    )}
-                    <span style={{fontWeight: 600}}>{member.dogName}</span>
-                  </div>
-                  <div className={styles.memberId}>ID: {member.id}</div>
-                </div>
-              ))
-            )}
-          </div>
         </div>
       </main>
     </div>

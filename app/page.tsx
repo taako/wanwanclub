@@ -54,8 +54,9 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleAction = async (action: "enter" | "exit") => {
-    if (!memberId.trim()) {
+  const handleAction = async (action: "enter" | "exit", overrideId?: string) => {
+    const idToUse = overrideId || memberId.trim();
+    if (!idToUse) {
       setMessage({ type: "error", text: "会員IDを入力してください" });
       return;
     }
@@ -66,18 +67,18 @@ export default function Home() {
       const res = await fetch(`/api/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memberId: memberId.trim() }),
+        body: JSON.stringify({ memberId: idToUse }),
       });
       const data = await res.json();
 
       if (data.success) {
         if (action === "enter") {
           setMessage({ type: "success", text: `${data.session.member.dogName}ちゃんの入室を記録しました！` });
-          Cookies.set("wanwan_member_id", memberId.trim(), { expires: 30 }); // Save for 30 days
+          Cookies.set("wanwan_member_id", idToUse, { expires: 30 }); // Save for 30 days
         } else {
           setMessage({ type: "success", text: "退室しました！" });
         }
-        setMemberId(""); // Clear input
+        if (!overrideId) setMemberId(""); // Clear input only if not using override
         fetchSessions(); // Refresh the list
       } else {
         setMessage({ type: "error", text: data.error || "エラーが発生しました" });
@@ -106,7 +107,7 @@ export default function Home() {
         </Link>
         <div className="nav-links">
           <Link href="/" className="nav-link active">ダッシュボード</Link>
-          <Link href="/members" className="nav-link">会員登録</Link>
+          <Link href="/members" className="nav-link">会員管理</Link>
           <Link href="/history" className="nav-link">利用履歴</Link>
         </div>
       </nav>
@@ -121,10 +122,17 @@ export default function Home() {
           {/* Left Column: Active Dogs */}
           <div className={`glass-panel ${styles.cardContainer}`}>
             <div className={styles.sectionTitle}>
-              <Activity className="brandHighlight" /> 利用中のワンちゃん
-                <button className={`btn btn-outline`} onClick={fetchSessions} disabled={loading} style={{padding: "0.5rem 1rem", fontSize: "0.875rem"}}>
-                  <RefreshCw size={16} className={loading ? styles.spin : ""} /> 更新
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Activity className="brandHighlight" /> 利用中のワンちゃん
+              </div>
+              <button 
+                className={`btn btn-outline ${styles.refreshBtn}`} 
+                onClick={fetchSessions} 
+                disabled={loading}
+                title="更新"
+              >
+                <RefreshCw size={16} className={loading ? styles.spin : ""} />
+              </button>
             </div>
 
             {loading && sessions.length === 0 ? (
@@ -132,7 +140,16 @@ export default function Home() {
             ) : sessions.length > 0 ? (
               <div className={styles.dogsList}>
                 {sessions.map((session) => (
-                  <div key={session.id} className={styles.dogCard}>
+                  <div 
+                    key={session.id} 
+                    className={styles.dogCard} 
+                    onClick={() => {
+                      if (confirm(`${session.member.dogName}ちゃんを退室させますか？`)) {
+                        handleAction("exit", session.memberId);
+                      }
+                    }}
+                    title={`${session.member.dogName}ちゃんを退室させる`}
+                  >
                     <div className={styles.dogAvatar}>
                       {session.member.photoUrl ? (
                         <img 
@@ -167,7 +184,7 @@ export default function Home() {
             </div>
             
             <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
-              会員IDを入力して、入室または退室を記録してください。<br/>
+              会員IDを入力して、入室または退室を記録してください。また、上のカードをタップしても退室できます。<br/>
               ※入室から30分経過すると自動的に退室扱いになります。
             </p>
 
@@ -196,14 +213,14 @@ export default function Home() {
                 onClick={() => handleAction("enter")}
                 disabled={actionLoading || !memberId.trim()}
               >
-                <LogIn size={18} /> 入室する
+                <LogIn size={18} /> 入室
               </button>
               <button 
                 className="btn btn-outline" 
                 onClick={() => handleAction("exit")}
                 disabled={actionLoading || !memberId.trim()}
               >
-                <LogOut size={18} /> 退室する
+                <LogOut size={18} /> 退室
               </button>
             </div>
           </div>

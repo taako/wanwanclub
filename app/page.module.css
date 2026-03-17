@@ -31,8 +31,20 @@
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.refreshBtn {
+  padding: 0.5rem !important;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% !important;
 }
 
 .cardContainer {
@@ -58,12 +70,35 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .dogCard:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(255, 123, 84, 0.3);
+  border-color: var(--primary);
+  background: rgba(var(--primary-rgb), 0.05);
+}
+
+.dogCard::after {
+  content: "退室";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--primary);
+  color: white;
+  padding: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transform: translateY(100%);
+  transition: var(--transition);
+}
+
+.dogCard:hover::after {
+  transform: translateY(0);
 }
 
 .dogAvatar {
