@@ -70,10 +70,6 @@ export default function History() {
       </nav>
 
       <main className={styles.main}>
-        <div className={styles.hero}>
-          <h1 className="page-title">利用履歴一覧</h1>
-          <p className="page-subtitle">ドッグランの過去の入出退出記録をすべて確認できます</p>
-        </div>
 
         <div className={`glass-panel ${styles.cardContainer}`}>
           <div className={styles.sectionTitle}>

@@ -145,12 +145,6 @@ export default function Members() {
       </nav>
 
       <main className={styles.main}>
-        <div className={styles.hero}>
-          <h1 className="page-title">{isEditing ? "会員情報の編集" : "新規会員登録"}</h1>
-          <p className="page-subtitle">
-            {isEditing ? `ID: ${memberId} の情報を編集します` : "新しいワンちゃんと飼い主様をシステムに登録します"}
-          </p>
-        </div>
 
         {/* List of registered members */}
         <div className={styles.membersListContainer}>

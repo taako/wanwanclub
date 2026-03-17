@@ -113,10 +113,6 @@ export default function Home() {
       </nav>
 
       <main className={styles.main}>
-        <div className={styles.hero}>
-          <h1 className="page-title">現在の利用状況</h1>
-          <p className="page-subtitle">リアルタイムでドッグランの様子を確認できます</p>
-        </div>
 
         <div className={styles.dashboardGrid}>
           {/* Left Column: Active Dogs */}
