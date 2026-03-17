@@ -192,3 +192,21 @@
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
+.memberActionsWrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.editButton {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.formActions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
