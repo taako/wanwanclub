@@ -98,7 +98,7 @@ export default function History() {
                     <tr key={session.id}>
                       <td>
                         {(() => {
-                          const isExited = session.exitedAt !== null;
+                          const isExited = session.exitedAt && session.exitedAt.trim() !== "";
                           const enteredAt = new Date(session.enteredAt).getTime();
                           const now = Date.now();
                           const isAutoExited = (now - enteredAt) > 30 * 60 * 1000;
