@@ -146,11 +146,6 @@ export default function History() {
 
       <footer style={{ textAlign: "center", padding: "2rem", marginTop: "2rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
         <p>&copy; {new Date().getFullYear()} DogRun Connect. All rights reserved.</p>
-        <div style={{ marginTop: "1rem" }}>
-            <Link href="/members" style={{ color: "var(--text-secondary)", textDecoration: "none", opacity: 0.5 }}>
-                スタッフ専用(管理画面)
-            </Link>
-        </div>
       </footer>
     </div>
   );
