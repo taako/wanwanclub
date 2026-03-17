@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { getGoogleSheet } from "@/lib/googleSheets";
-import { writeFile } from "fs/promises";
-import { join } from "path";
-import { v4 as uuidv4 } from "uuid";
+import { uploadImage } from "@/lib/cloudinary";
 
 export async function GET() {
   try {
@@ -72,14 +70,7 @@ export async function POST(request: Request) {
     if (photo && photo.size > 0) {
       const bytes = await photo.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      
-      const fileExt = photo.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const uploadDir = join(process.cwd(), 'public/uploads');
-      const filePath = join(uploadDir, fileName);
-      
-      await writeFile(filePath, buffer);
-      photoUrl = `/uploads/${fileName}`;
+      photoUrl = await uploadImage(buffer);
     }
 
     const newMember = {
@@ -134,14 +125,7 @@ export async function PATCH(request: Request) {
     if (photo && photo.size > 0 && typeof photo !== 'string') {
       const bytes = await photo.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      
-      const fileExt = photo.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const uploadDir = join(process.cwd(), 'public/uploads');
-      const filePath = join(uploadDir, fileName);
-      
-      await writeFile(filePath, buffer);
-      photoUrl = `/uploads/${fileName}`;
+      photoUrl = await uploadImage(buffer);
     }
 
     row.set("dogName", dogName);
