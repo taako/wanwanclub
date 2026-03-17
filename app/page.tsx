@@ -223,6 +223,7 @@ export default function Home() {
                 <LogOut size={18} /> 退室
               </button>
             </div>
+            </div>
           </div>
         </main>
 
