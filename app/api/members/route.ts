@@ -14,6 +14,7 @@ export async function GET() {
     const members = rows.map(row => ({
       id: row.get('id'),
       dogName: row.get('dogName'),
+      group: row.get('group') || "",
       photoUrl: row.get('photoUrl') || null,
       createdAt: row.get('createdAt')
     })).reverse(); // Order by newest
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const id = formData.get("id") as string;
     const dogName = formData.get("dogName") as string;
+    const group = formData.get("group") as string || "";
     const photo = formData.get("photo") as File | null;
 
     if (!id || !dogName) {
@@ -47,10 +49,10 @@ export async function POST(request: Request) {
     
     // Ensure sheet headers exist if it's a completely blank sheet
     if (!sheet) {
-      sheet = await doc.addSheet({ title: "Members", headerValues: ["id", "dogName", "photoUrl", "createdAt"]});
+      sheet = await doc.addSheet({ title: "Members", headerValues: ["id", "dogName", "group", "photoUrl", "createdAt"]});
     } else {
         try { await sheet.loadHeaderRow(); } catch (e) {
-            await sheet.setHeaderRow(["id", "dogName", "photoUrl", "createdAt"]);
+            await sheet.setHeaderRow(["id", "dogName", "group", "photoUrl", "createdAt"]);
         }
     }
 
@@ -76,6 +78,7 @@ export async function POST(request: Request) {
     const newMember = {
       id,
       dogName,
+      group,
       photoUrl: photoUrl || "",
       createdAt: new Date().toISOString(),
     };
@@ -97,6 +100,7 @@ export async function PATCH(request: Request) {
     const formData = await request.formData();
     const id = formData.get("id") as string;
     const dogName = formData.get("dogName") as string;
+    const group = formData.get("group") as string;
     const photo = formData.get("photo") as File | null;
 
     if (!id || !dogName) {
@@ -129,6 +133,7 @@ export async function PATCH(request: Request) {
     }
 
     row.set("dogName", dogName);
+    if (group !== undefined) row.set("group", group);
     row.set("photoUrl", photoUrl || "");
     await row.save();
 
@@ -137,6 +142,7 @@ export async function PATCH(request: Request) {
       member: {
         id,
         dogName,
+        group: row.get("group"),
         photoUrl,
         createdAt: row.get("createdAt")
       } 

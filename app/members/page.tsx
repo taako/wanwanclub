@@ -8,6 +8,7 @@ import styles from "./page.module.css";
 type Member = {
   id: string;
   dogName: string;
+  group?: string;
   photoUrl?: string | null;
   createdAt: string;
 };
@@ -15,6 +16,7 @@ type Member = {
 export default function Members() {
   const [memberId, setMemberId] = useState("");
   const [dogName, setDogName] = useState("");
+  const [group, setGroup] = useState("A");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -44,6 +46,7 @@ export default function Members() {
     setIsEditing(true);
     setMemberId(member.id);
     setDogName(member.dogName);
+    setGroup(member.group || "A");
     setPhotoPreview(member.photoUrl || null);
     setPhotoFile(null);
     setMessage(null);
@@ -59,6 +62,7 @@ export default function Members() {
     setIsEditing(false);
     setMemberId("");
     setDogName("");
+    setGroup("A");
     setPhotoFile(null);
     setPhotoPreview(null);
     setMessage(null);
@@ -91,6 +95,7 @@ export default function Members() {
       const formData = new FormData();
       formData.append("id", memberId.trim());
       formData.append("dogName", dogName.trim());
+      formData.append("group", group);
       if (photoFile) {
         formData.append("photo", photoFile);
       }
@@ -106,12 +111,14 @@ export default function Members() {
         if (!isEditing) {
           setMemberId("");
           setDogName("");
+          setGroup("A");
           setPhotoPreview(null);
         }
         setPhotoFile(null);
         setIsEditing(false);
         setMemberId("");
         setDogName("");
+        setGroup("A");
         setPhotoPreview(null);
         fetchMembers();
       } else {
@@ -178,7 +185,12 @@ export default function Members() {
                       <Dog className="brandHighlight" size={20} />
                     )}
                     <div style={{display: "flex", flexDirection: "column"}}>
-                      <span style={{fontWeight: 600}}>{member.dogName}</span>
+                      <div style={{display: "flex", alignItems: "center", gap: "8px"}}>
+                        <span style={{fontWeight: 600}}>{member.dogName}</span>
+                        {member.group && (
+                          <span className={styles.groupBadge}>{member.group} 班</span>
+                        )}
+                      </div>
                       <span className={styles.memberId}>ID: {member.id}</span>
                     </div>
                   </div>
@@ -242,6 +254,24 @@ export default function Members() {
                   onChange={(e) => setDogName(e.target.value)}
                   disabled={loading}
                 />
+            </div>
+
+            <div className="input-group">
+              <label className="input-label" htmlFor="group">
+                班
+              </label>
+              <select
+                id="group"
+                className="input-field"
+                value={group}
+                onChange={(e) => setGroup(e.target.value)}
+                disabled={loading}
+              >
+                <option value="A">A 班</option>
+                <option value="B">B 班</option>
+                <option value="C">C 班</option>
+                <option value="D">D 班</option>
+              </select>
             </div>
 
             <div className="input-group">

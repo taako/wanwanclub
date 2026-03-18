@@ -33,6 +33,7 @@ export async function getGoogleSheet() {
 export type MemberRow = {
   id: string;
   dogName: string;
+  group: string;
   photoUrl: string | null;
   createdAt: string;
 }

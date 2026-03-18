@@ -130,6 +130,15 @@
   font-size: 0.875rem;
 }
 
+.groupBadge {
+  font-size: 0.75rem;
+  background: var(--primary);
+  color: white;
+  padding: 0.1rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
 .memberActions {
   display: flex;
   gap: 0.5rem;
