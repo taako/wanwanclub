@@ -71,8 +71,8 @@ export default function Members() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setMessage({ type: "error", text: "画像サイズは5MB以下にしてください" });
+      if (file.size > 10 * 1024 * 1024) {
+        setMessage({ type: "error", text: "画像サイズは10MB以下にしてください" });
         return;
       }
       setPhotoFile(file);
