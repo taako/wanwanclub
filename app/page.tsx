@@ -57,7 +57,7 @@ export default function Home() {
     fetchSessions();
     fetchRotation();
     // Refresh every minute to show accurate durations and auto-remove after 30 mins
-    const interval = setInterval(fetchSessions, 10000);
+    const interval = setInterval(fetchSessions, 60000);
     
     // Load saved member ID from cookie
     const savedId = Cookies.get("wanwan_member_id");
