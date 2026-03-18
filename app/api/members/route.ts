@@ -47,12 +47,22 @@ export async function POST(request: Request) {
     const doc = await getGoogleSheet();
     let sheet = doc.sheetsByTitle["Members"];
     
-    // Ensure sheet headers exist if it's a completely blank sheet
+    // Ensure sheet headers exist and include "group"
     if (!sheet) {
       sheet = await doc.addSheet({ title: "Members", headerValues: ["id", "dogName", "group", "photoUrl", "createdAt"]});
     } else {
-        try { await sheet.loadHeaderRow(); } catch (e) {
-            await sheet.setHeaderRow(["id", "dogName", "group", "photoUrl", "createdAt"]);
+        await sheet.loadHeaderRow();
+        const headers = sheet.headerValues;
+        if (!headers.includes("group")) {
+          // Add "group" to headers, ideally after dogName
+          const newHeaders = [...headers];
+          const dogNameIndex = newHeaders.indexOf("dogName");
+          if (dogNameIndex !== -1) {
+            newHeaders.splice(dogNameIndex + 1, 0, "group");
+          } else {
+            newHeaders.push("group");
+          }
+          await sheet.setHeaderRow(newHeaders);
         }
     }
 
