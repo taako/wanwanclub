@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Dog, Clock, LogIn, LogOut, CheckCircle, Users, Activity, RefreshCw } from "lucide-react";
+import { Dog, Clock, LogIn, LogOut, CheckCircle, Users, Activity, RefreshCw, Calendar, ShieldCheck, Sparkles } from "lucide-react";
 import Cookies from "js-cookie";
 import styles from "./page.module.css";
 
@@ -21,9 +21,22 @@ type ActiveSession = {
 export default function Home() {
   const [sessions, setSessions] = useState<ActiveSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rotation, setRotation] = useState<{ patrol: string; clean: string } | null>(null);
   const [memberId, setMemberId] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const fetchRotation = async () => {
+    try {
+      const res = await fetch("/api/rotation");
+      const data = await res.json();
+      if (data.success) {
+        setRotation(data.rotation);
+      }
+    } catch (error) {
+      console.error("Failed to fetch rotation:", error);
+    }
+  };
 
   const fetchSessions = async () => {
     try {
@@ -42,6 +55,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchSessions();
+    fetchRotation();
     // Refresh every minute to show accurate durations and auto-remove after 30 mins
     const interval = setInterval(fetchSessions, 10000);
     
@@ -173,11 +187,38 @@ export default function Home() {
             )}
           </div>
 
-          {/* Right Column: Entry/Exit Form */}
-          <div className={`glass-panel ${styles.cardContainer}`}>
-            <div className={styles.sectionTitle}>
-              <Users className="brandHighlight" /> 入退室管理
+          <div className={styles.rightColumn}>
+            {/* Monthly Rotation Card */}
+            <div className={`glass-panel ${styles.rotationCard} animate-fade-in`}>
+              <div className={styles.sectionTitleSmall}>
+                <Calendar size={18} className="brandHighlight" /> 今月のローテーション
+              </div>
+              {rotation ? (
+                <div className={styles.rotationContent}>
+                  <div className={styles.rotationItem}>
+                    <div className={styles.rotationLabel}>
+                      <ShieldCheck size={16} /> エチケット
+                    </div>
+                    <div className={styles.rotationValue}>{rotation.patrol}班</div>
+                  </div>
+                  <div className={styles.rotationDivider}></div>
+                  <div className={styles.rotationItem}>
+                    <div className={styles.rotationLabel}>
+                      <Sparkles size={16} /> 公園清掃
+                    </div>
+                    <div className={styles.rotationValue}>{rotation.clean}班</div>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.emptyRotation}>読み込み中...</div>
+              )}
             </div>
+
+            {/* Right Column: Entry/Exit Form */}
+            <div className={`glass-panel ${styles.cardContainer}`}>
+              <div className={styles.sectionTitle}>
+                <Users className="brandHighlight" /> 入退室管理
+              </div>
             
             <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
               会員IDを入力して、入室または退室を記録してください。また、上のカードをタップしても退室できます。<br/>
@@ -221,7 +262,8 @@ export default function Home() {
             </div>
             </div>
           </div>
-        </main>
+        </div>
+      </main>
 
         <footer style={{ textAlign: "center", padding: "2rem", marginTop: "2rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
           <p>&copy; {new Date().getFullYear()} DogRun Connect. All rights reserved.</p>
