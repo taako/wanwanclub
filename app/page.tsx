@@ -267,6 +267,10 @@ export default function Home() {
 
         <footer style={{ textAlign: "center", padding: "2rem", marginTop: "2rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
           <p>&copy; {new Date().getFullYear()} DogRun Connect. All rights reserved.</p>
+          <div style={{ marginTop: "0.5rem", fontSize: "0.75rem", display: "flex", justifyContent: "center", gap: "1rem" }}>
+            <a href="/manual.html" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>操作マニュアル</a>
+            <a href="/specification.html" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>システム仕様書</a>
+          </div>
         </footer>
       </div>
     );
